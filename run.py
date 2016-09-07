@@ -226,7 +226,8 @@ class MyForm(QtGui.QMainWindow):
                                              target_chan + 1))
         else:
             self.ui.view.addTraceAverage(xlist, test_data[target_trace, :, target_chan, :],
-                                         target_test + ' trace_' + str(target_trace) + ' chan_' + str(target_chan))
+                                         target_test + ' trace_' + str(target_trace + 1) + ' chan_' + str(
+                                             target_chan + 1))
 
         h_file.close()
 
