@@ -142,9 +142,6 @@ class MyForm(QtGui.QMainWindow):
         else:
             return
 
-        # clear view
-        # self.clear_view()
-
         for key in h_file.keys():
             if 'segment' in key:
                 for test in h_file[key].keys():
@@ -176,6 +173,8 @@ class MyForm(QtGui.QMainWindow):
             presentation = test_data[target_trace, target_rep, target_chan, :]
         elif len(test_data.shape) == 3:
             presentation = test_data[target_trace, target_rep, :]
+
+        # TODO Is presentation portion needed still?
 
         len_presentation = len(presentation)
 
@@ -218,16 +217,22 @@ class MyForm(QtGui.QMainWindow):
         self.ui.view.setXRange(0, window, 0)
         self.ui.view.setYRange(ymin, ymax, 0.1)
 
-        # self.ui.view.tracePlot.clear()
-        # Fix xlist to be the length of presentation
+        label = target_test + ' trace_' + str(target_trace + 1) + ' chan_' + str(target_chan + 1)
+
         if len(test_data.shape) == 3:
-            self.ui.view.addTraceAverage(xlist, test_data[target_trace, :, :],
-                                         target_test + ' trace_' + str(target_trace + 1) + ' chan_' + str(
-                                             target_chan + 1))
+            # Average reps of test_data
+            temp_data = np.mean(test_data[target_trace, :, :], axis=0)
+            # Create empty storage
+            avg_test_data = np.zeros([1, test_data.shape[3]])
+            avg_test_data[0, :] = temp_data
+            self.ui.view.addTraceAverage(xlist, avg_test_data, label, self.ui.spinBox_red.value(), self.ui.spinBox_green.value(), self.ui.spinBox_blue.value())
         else:
-            self.ui.view.addTraceAverage(xlist, test_data[target_trace, :, target_chan, :],
-                                         target_test + ' trace_' + str(target_trace + 1) + ' chan_' + str(
-                                             target_chan + 1))
+            # Average reps of test_data
+            temp_data = np.mean(test_data[target_trace, :, target_chan, :], axis=0)
+            # Create empty storage
+            avg_test_data = np.zeros([1, test_data.shape[3]])
+            avg_test_data[0, :] = temp_data
+            self.ui.view.addTraceAverage(xlist, avg_test_data, label, self.ui.spinBox_red.value(), self.ui.spinBox_green.value(), self.ui.spinBox_blue.value())
 
         h_file.close()
 
@@ -276,6 +281,9 @@ class MyForm(QtGui.QMainWindow):
         elif len(test_data.shape) == 3:
             presentation = test_data[target_trace, target_rep, :]
 
+        # TODO Is presentation portion needed still?
+        # print 'presentation', presentation
+
         len_presentation = len(presentation)
 
         # Get the length of the window and length of presentation depending on if all is selected or not
@@ -320,9 +328,9 @@ class MyForm(QtGui.QMainWindow):
         # self.ui.preview.tracePlot.clear()
         # Fix xlist to be the length of presentation
         if len(test_data.shape) == 3:
-            self.ui.preview.addTraceAverage(xlist, test_data[target_trace, :, :], target_test + ' trace_' + str(target_trace+1) + ' chan_' + str(target_chan+1))
+            self.ui.preview.addTraceAveragePreview(xlist, test_data[target_trace, :, :], target_test + ' trace_' + str(target_trace+1) + ' chan_' + str(target_chan+1))
         else:
-            self.ui.preview.addTraceAverage(xlist, test_data[target_trace, :, target_chan, :], target_test + ' trace_' + str(target_trace) + ' chan_' + str(target_chan))
+            self.ui.preview.addTraceAveragePreview(xlist, test_data[target_trace, :, target_chan, :], target_test + ' trace_' + str(target_trace) + ' chan_' + str(target_chan))
 
         h_file.close()
 

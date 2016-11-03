@@ -160,7 +160,15 @@ class TraceWidget(BasePlot):
             self.legend.addItem(line, 'trace_' + str(trace_num[irep]) + ': ' + str(intensity[irep]) + ' dB')
             self.legend_names.append('trace_' + str(trace_num[irep]) + ': ' + str(intensity[irep]) + ' dB')
 
-    def addTraceAverage(self, x, ys, label):
+    def addTraceAverage(self, x, ys, label, r=float('NaN'), g=float('NaN'), b=float('NaN')):
+        nreps = ys.shape[0]
+        for irep in reversed(range(nreps)):
+            self.trace_stash.append(self.plot(x, ys[irep, :], pen=pg.colorTuple(pg.mkColor(r, g, b))))
+            line = self.plot(pen=pg.colorTuple(pg.mkColor(r, g, b)))
+            self.legend.addItem(line, label)
+            self.legend_names.append(label)
+
+    def addTraceAveragePreview(self, x, ys, label):
         nreps = ys.shape[0]
         for irep in reversed(range(nreps)):
             self.trace_stash.append(self.plot(x, ys[irep, :], pen=(irep, nreps)))
