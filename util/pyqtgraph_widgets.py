@@ -2,6 +2,8 @@ import numpy as np
 import pyqtgraph as pg
 from copy import deepcopy
 
+from QtWrapper import QtCore, QtGui
+
 import spikestats
 from QtWrapper import QtCore
 from raster_bounds_dlg import RasterBoundsDialog
@@ -110,6 +112,12 @@ class TraceWidget(BasePlot):
         self.disableAutoRange()
 
         self.threshLine = pg.InfiniteLine(pos=0.5, angle=0, pen='r', movable=True)
+
+        invertAction = QtGui.QAction('Invert response polarity', None)
+        invertAction.setCheckable(True)
+        self.scene().contextMenu.append(invertAction) #should use function for this?
+        invertAction.triggered.connect(self.invertPolarity)
+
         self.addItem(self.threshLine)
         self.threshLine.sigPositionChangeFinished.connect(self.update_thresh)
         self.setLabel('left', '', units='V')
@@ -149,13 +157,13 @@ class TraceWidget(BasePlot):
         self.clearTraces()
         nreps = ys.shape[0]
         for irep in range(nreps):
-            self.trace_stash.append(self.plot(x, ys[irep, :], pen=(irep, nreps)))
+            self.trace_stash.append(self.plot(x, ys[irep, :] * self._polarity, pen=(irep, nreps)))
 
     def addTracesABR(self, x, ys, intensity, trace_num):
         self.clearTraces()
         nreps = ys.shape[0]
         for irep in reversed(range(nreps)):
-            self.trace_stash.append(self.plot(x, ys[irep, :], pen=(irep, nreps)))
+            self.trace_stash.append(self.plot(x, ys[irep, :] * self._polarity, pen=(irep, nreps)))
             line = self.plot(pen=pg.intColor(irep, hues=nreps))
             self.legend.addItem(line, 'trace_' + str(trace_num[irep]) + ': ' + str(intensity[irep]) + ' dB')
             self.legend_names.append('trace_' + str(trace_num[irep]) + ': ' + str(intensity[irep]) + ' dB')
@@ -171,7 +179,7 @@ class TraceWidget(BasePlot):
     def addTraceAveragePreview(self, x, ys, label):
         nreps = ys.shape[0]
         for irep in reversed(range(nreps)):
-            self.trace_stash.append(self.plot(x, ys[irep, :], pen=(irep, nreps)))
+            self.trace_stash.append(self.plot(x, ys[irep, :] * self._polarity, pen=(irep, nreps)))
             line = self.plot(pen=pg.intColor(irep, hues=nreps))
             self.legend.addItem(line, label)
             self.legend_names.append(label)
